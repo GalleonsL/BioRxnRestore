@@ -1,0 +1,99 @@
+{
+  "rhea_release": 139,
+  "kegg_release": "2026-08-14",
+  "inputs": [
+    {
+      "role": "rhea_smiles",
+      "file": "rhea-reaction-smiles.tsv",
+      "sha256": "b7236ca2ca35d5ec501e19b85359f203648d1491e4172229dbf8915276c62cb9",
+      "required_for": [
+        "rhea",
+        "rhea-kegg"
+      ]
+    },
+    {
+      "role": "rhea_directions",
+      "file": "rhea-directions.tsv",
+      "sha256": "7d5640e685372af35f4fda423ae3aef66dacfdbcbfc892882825ace17c82a546",
+      "required_for": [
+        "rhea",
+        "rhea-kegg"
+      ]
+    },
+    {
+      "role": "rhea_metadata",
+      "file": "rhea_reactions.tsv",
+      "sha256": "f8c556896e16d9ae2f12d887cc7aab8f38832fb28a858f1bad38afedddda1d78",
+      "required_for": [
+        "rhea",
+        "rhea-kegg"
+      ]
+    },
+    {
+      "role": "rhea_ec",
+      "file": "rhea2ec.tsv",
+      "sha256": "545b0cac6501ea51ddfc970c525ee2a15a17456fcdfd6bd7c28b5e110c958122",
+      "required_for": [
+        "rhea",
+        "rhea-kegg"
+      ]
+    },
+    {
+      "role": "kegg",
+      "file": "kegg_balanced_reaction_smiles_full.tsv",
+      "sha256": "25064f0c4e6febbd0b2b0be13f3919a5027bec8920fafd7132a6b5156b0db834",
+      "required_for": [
+        "rhea-kegg"
+      ]
+    },
+    {
+      "role": "cofactors",
+      "file": "cofactors_biochem.tsv",
+      "sha256": "e17ede0cc55672371280a4b6fb86bb674dc84e34ae737b96142607fd74ee84a3",
+      "required_for": [
+        "rhea",
+        "rhea-kegg"
+      ]
+    },
+    {
+      "role": "mapping",
+      "file": "chebi_pH7_3_mapping.tsv",
+      "sha256": "e0ddc956a23e15ea8f00289fcc4c3b4ef100f9a55f8d9632306222689f4b1725",
+      "required_for": [
+        "rhea",
+        "rhea-kegg"
+      ]
+    },
+    {
+      "role": "structures",
+      "file": "rhea-chebi-smiles.tsv",
+      "sha256": "ddd35b4b349b127fd98bf405c60fb608881b1ecd405f5f16895b705aaa3ec68d",
+      "required_for": [
+        "rhea",
+        "rhea-kegg"
+      ]
+    }
+  ],
+  "skeleton": {
+    "min_heavy_atoms_after_coa_mask": 3,
+    "min_carbon_atoms_after_coa_mask": 1,
+    "mcs_product_ratio_threshold": 0.4,
+    "mcs_timeout_seconds": 10,
+    "frozen_mcs_exclusion_pair_sha256": [
+      "890a59c10f9c8796cc6d58875a26f4b6f36c3dfb4a909dfa2d5c15ce109a08f7"
+    ]
+  },
+  "mapper_identity": {
+    "version": "0.4.3",
+    "device": "cuda",
+    "max_tokens": 512,
+    "model_files": {
+      "config.json": "ea0f3144af1d13a5d5928cff01abd8e7c14ab831ff7b6d73a14d4162864a876f",
+      "pytorch_model.bin": "8541f3f500dae71abe678d546bd035ca946e2d1c819f6b2cf41a97faedd7e6a2",
+      "special_tokens_map.json": "303df45a03609e4ead04bc3dc1536d0ab19b5358db685b6f3da123d05ec200e3",
+      "tokenizer_config.json": "44136fa355b3678a1146ad16f7e8649e94fb4fc21fe77e8310c060f61caaff8a",
+      "training_args.bin": "440fdf4459c2f51c3f042ccad777342b06bf3f491c251b712ab2aada5ff7a2eb",
+      "vocab.txt": "399868a653e85549ce150af4a1f6cd2776240c6a3d951ced2120565f00f027fd"
+    }
+  }
+}

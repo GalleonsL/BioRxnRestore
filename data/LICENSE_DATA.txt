@@ -1,0 +1,38 @@
+BioRxnRestore Rhea 139 library, version 1 (2026-10-08)
+
+This database is distributed under Creative Commons Attribution 4.0 International
+(CC BY 4.0): https://creativecommons.org/licenses/by/4.0/
+Legal text: https://creativecommons.org/licenses/by/4.0/legalcode
+
+Attribution
+Rhea, developed by SIB Swiss Institute of Bioinformatics and EMBL-EBI:
+https://www.rhea-db.org/
+License: https://www.rhea-db.org/help/license-disclaimer
+Bansal et al., Rhea, the reaction knowledgebase in 2022.
+https://doi.org/10.1093/nar/gkab1016
+
+ChEBI, EMBL-EBI (chemical structures and chemical-form annotations), CC BY 4.0:
+https://www.ebi.ac.uk/chebi/about
+The supplied structure and pH 7.3 mapping files are Rhea-provided snapshots.
+
+The RetroRules cofactor list guided main-species extraction:
+https://retrorules.org/download (CC BY 4.0).
+
+Adaptation by BioRxnRestore contributors:
+https://github.com/GalleonsL/BioRxnRestore
+Rhea release 139 reactions were filtered for approved, non-transport, concrete,
+element/charge-balanced records; same-species participants were cancelled.
+Main-species skeletons, missing-species patterns, multi-product parent
+partitions, RDKit difference fingerprints and atom-mapped restoration templates
+were derived with BioRxnRestore. The chemical-form snapshot files are unchanged.
+These assets reuse the saved Rhea preprocessing results from September 2026;
+this packaging operation does not regenerate mappings or templates.
+Source IDs, version information and file checksums are retained in the files
+and manifest.json. Please credit Rhea, ChEBI, RetroRules and BioRxnRestore, link
+CC BY 4.0, and indicate any further modifications when redistributing.
+
+The original providers do not endorse this adaptation. Rhea supplies its data
+without warranties of correctness or liability for damages; the data are for
+research, educational and informational use and are not intended for medical
+use. BioRxnRestore also supplies this adaptation without warranties.
+The software is licensed separately under MIT.

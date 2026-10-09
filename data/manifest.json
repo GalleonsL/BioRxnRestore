@@ -1,0 +1,142 @@
+{
+  "method": "unified_fixed_partition_reverse_v2",
+  "library": "rhea-139-v1",
+  "databases": [
+    "rhea"
+  ],
+  "license": "CC-BY-4.0",
+  "counts": {
+    "directed_net_reactions": 24032,
+    "skeleton_branches": 24406,
+    "parents": 19878,
+    "template_statuses": {
+      "single_parent_direct_msp": 15844,
+      "ready": 3442,
+      "error": 482,
+      "model_length_limit": 110
+    }
+  },
+  "files": [
+    {
+      "role": "evidence",
+      "file": "evidence_library.tsv",
+      "sha256": "50e58e53bdc673d8ef415a03bb84ba8b65af989afbe0b6067d5837e1df4f68c4"
+    },
+    {
+      "role": "fingerprints",
+      "file": "fingerprints.npz",
+      "sha256": "f8920f413feafd58054103a2ce96589a6604095dd52a8bcc7d77f73b0c12ffa8"
+    },
+    {
+      "role": "parents.json",
+      "file": "parents.json",
+      "sha256": "0108d150f0c063b1da4c8446b095fe1a039c944f1473049be32d8cb9aa07352b"
+    },
+    {
+      "role": "children.json",
+      "file": "children.json",
+      "sha256": "c4fd297c0f66bde5349a1c45bcec2e1d55681a7075527df5ea7ef763c89741ff"
+    },
+    {
+      "role": "templates.jsonl",
+      "file": "templates.jsonl",
+      "sha256": "b9bee5fa1ab772f684c0c69d5bf998d328e24bdba19f659e79362e4b15fae494"
+    },
+    {
+      "role": "mapper_identity.json",
+      "file": "mapper_identity.json",
+      "sha256": "ab33cb22848d666c42d255133c8b6e53108fe6e9881efa31796d23356ff86ae4"
+    },
+    {
+      "role": "lookup_rhea",
+      "file": "net_reactions.tsv",
+      "sha256": "b444c978e6228749dc1758404d3e92b2eb62a7b8901fb2511012819ad5468047"
+    },
+    {
+      "role": "chemical_forms_mapping",
+      "file": "chebi_pH7_3_mapping.tsv",
+      "sha256": "e0ddc956a23e15ea8f00289fcc4c3b4ef100f9a55f8d9632306222689f4b1725"
+    },
+    {
+      "role": "chemical_forms_structures",
+      "file": "rhea-chebi-smiles.tsv",
+      "sha256": "ddd35b4b349b127fd98bf405c60fb608881b1ecd405f5f16895b705aaa3ec68d"
+    },
+    {
+      "role": "data_license",
+      "file": "LICENSE_DATA.txt",
+      "sha256": "72fb87d825571d3b05288f2050d94d6752a0e43fdb58f01c4a25473fe3336bf8"
+    }
+  ],
+  "query_forms": {
+    "policy": "official_known_forms_joint_stereo_v2",
+    "mapping_sha256": "e0ddc956a23e15ea8f00289fcc4c3b4ef100f9a55f8d9632306222689f4b1725",
+    "structures_sha256": "ddd35b4b349b127fd98bf405c60fb608881b1ecd405f5f16895b705aaa3ec68d",
+    "unresolved_policy": "retain_original"
+  },
+  "inputs": [
+    {
+      "role": "rhea_smiles",
+      "file": "rhea-reaction-smiles.tsv",
+      "sha256": "b7236ca2ca35d5ec501e19b85359f203648d1491e4172229dbf8915276c62cb9",
+      "required_for": [
+        "rhea",
+        "rhea-kegg"
+      ]
+    },
+    {
+      "role": "rhea_directions",
+      "file": "rhea-directions.tsv",
+      "sha256": "7d5640e685372af35f4fda423ae3aef66dacfdbcbfc892882825ace17c82a546",
+      "required_for": [
+        "rhea",
+        "rhea-kegg"
+      ]
+    },
+    {
+      "role": "rhea_metadata",
+      "file": "rhea_reactions.tsv",
+      "sha256": "f8c556896e16d9ae2f12d887cc7aab8f38832fb28a858f1bad38afedddda1d78",
+      "required_for": [
+        "rhea",
+        "rhea-kegg"
+      ]
+    },
+    {
+      "role": "rhea_ec",
+      "file": "rhea2ec.tsv",
+      "sha256": "545b0cac6501ea51ddfc970c525ee2a15a17456fcdfd6bd7c28b5e110c958122",
+      "required_for": [
+        "rhea",
+        "rhea-kegg"
+      ]
+    },
+    {
+      "role": "cofactors",
+      "file": "cofactors_biochem.tsv",
+      "sha256": "e17ede0cc55672371280a4b6fb86bb674dc84e34ae737b96142607fd74ee84a3",
+      "required_for": [
+        "rhea",
+        "rhea-kegg"
+      ]
+    },
+    {
+      "role": "mapping",
+      "file": "chebi_pH7_3_mapping.tsv",
+      "sha256": "e0ddc956a23e15ea8f00289fcc4c3b4ef100f9a55f8d9632306222689f4b1725",
+      "required_for": [
+        "rhea",
+        "rhea-kegg"
+      ]
+    },
+    {
+      "role": "structures",
+      "file": "rhea-chebi-smiles.tsv",
+      "sha256": "ddd35b4b349b127fd98bf405c60fb608881b1ecd405f5f16895b705aaa3ec68d",
+      "required_for": [
+        "rhea",
+        "rhea-kegg"
+      ]
+    }
+  ]
+}
