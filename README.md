@@ -16,27 +16,25 @@ pip install -r requirements.txt
 
 The repository includes a prepared Rhea 139 database in `data/`, so you can run the example below after installing the dependencies.
 
-Give BioRxnRestore a reaction SMILES containing the known substrates and one observed product. For example, the following command completes **isoamyl acetate → acetate**:
+Give BioRxnRestore a reaction SMILES containing the known substrates and one observed product. For example, this command completes **allyl alcohol → acrolein**:
 
 ```bash
 python scripts/restore.py --data-dir data \
-  --reaction 'CC(=O)OCCC(C)C>>CC(=O)[O-]' --output result.json
+  --reaction 'C=CCO>>C=CC=O' --output result.json
 ```
 
 Output:
 
 ```text
-BioRxnRestore | default | 3 candidates
+BioRxnRestore | default | 23 candidates
 Saved: result.json
 
 Rank  | Method     | Score  | Completed reaction
-------+------------+--------+-----------------------------------------------
-Top 1 | Match      | 1.0000 | CC(=O)OCCC(C)C.O -> CC(=O)[O-].CC(C)CCO.[H+]
-Top 2 | Similarity | 0.4065 | CC(=O)OCCC(C)C.CS -> CC(=O)[O-].CSCCC(C)C.[H+]
-Top 3 | Similarity | 0.4065 | CC(=O)OCCC(C)C.[SH-] -> CC(=O)[O-].CC(C)CCS
+------+------------+--------+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Top 1 | Match      | 1.0000 | C=CCO.NC(=O)c1ccc[n+]([C@@H]2O[C@H](COP(=O)([O-])OP(=O)([O-])OC[C@H]3O[C@@H](n4cnc5c(N)ncnc54)[C@H](OP(=O)([O-])[O-])[C@@H]3O)[C@@H](O)[C@H]2O)c1 -> C=CC=O.NC(=O)C1=CN([C@@H]2O[C@H](COP(=O)([O-])OP(=O)([O-])OC[C@H]3O[C@@H](n4cnc5c(N)ncnc54)[C@H](OP(=O)([O-])[O-])[C@@H]3O)[C@@H](O)[C@H]2O)C=CC1.[H+]
+Top 2 | Similarity | 0.4364 | C=CCO.NC(=O)c1ccc[n+]([C@@H]2O[C@H](COP(=O)([O-])OP(=O)([O-])OC[C@H]3O[C@@H](n4cnc5c(N)ncnc54)[C@H](O)[C@@H]3O)[C@@H](O)[C@H]2O)c1 -> C=CC=O.NC(=O)C1=CN([C@@H]2O[C@H](COP(=O)([O-])OP(=O)([O-])OC[C@H]3O[C@@H](n4cnc5c(N)ncnc54)[C@H](O)[C@@H]3O)[C@@H](O)[C@H]2O)C=CC1.[H+]
+Top 3 | Similarity | 0.3333 | C=CCO.O=O -> C=CC=O.OO
 ```
-
-In the first candidate, BioRxnRestore adds water to the reactants and isoamyl alcohol and a proton to the products. You can inspect the top three candidates in the terminal, or open `result.json` for the full candidate list and supporting reactions.
 
 For benchmark evaluation, add `--strict-holdout` to exclude related source reactions. You can also supply known complete references with `--reference` and source IDs with `--exclude-source`. When evaluating against reference labels, include all known references for each query. Run `python scripts/restore.py --help` to see the available options.
 
