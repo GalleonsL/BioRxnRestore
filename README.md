@@ -14,7 +14,7 @@ pip install -r requirements.txt
 
 ## Usage
 
-The repository includes a prepared Rhea 139 database in `data/`, so you can run the example below after installing the dependencies.
+The repository includes a ready-to-use Rhea 139 database in `data/`. KEGG data are not bundled because they are subject to separate [licensing terms](https://www.genome.jp/kegg/legal.html). To add KEGG, supply your own two-column reaction SMILES table and build the combined database using the script described in [Adding KEGG](#adding-kegg).
 
 Give BioRxnRestore a reaction SMILES containing the known substrates and one observed product. For example, this command completes **allyl alcohol → acrolein**:
 
@@ -42,7 +42,7 @@ Selected paper examples—CEA–DGPC, catechol and NMA-Glc pathways—are in [ex
 
 ## Database preparation
 
-If you want to rebuild the database, start with the original source files listed below. The build script checks their versions using saved checksums, so it expects the same input snapshots used in this project.
+If you want to rebuild the database, start with the original source files listed below. The Rhea build uses the input snapshots listed below; KEGG reactions can be supplied in your own table.
 
 ### Rhea
 
@@ -70,23 +70,24 @@ The script cleans the reactions and uses them to build the skeleton library, fin
 
 ### Adding KEGG
 
-To include KEGG, you will also need `kegg_balanced_reaction_smiles_full.tsv`, the prepared reaction table used in this project. This snapshot is dated 2026-08-14 and should be obtained under your KEGG authorization. Each row describes a complete reaction as SMILES and records whether its elements and charge are balanced:
+Provide a tab-separated file with two columns: `reaction_id` (the KEGG reaction ID) and `reaction_smiles` (the complete reaction, including cofactors and repeated molecules for stoichiometric coefficients). See [the example table](examples/kegg_reactions.tsv):
 
-| Required columns | Contents |
-| --- | --- |
-| `reaction_id`, `equation` | KEGG reaction ID and source equation |
-| `reaction_smiles` | Complete reaction, including stoichiometric multiplicities |
-| `element_balanced`, `charge_balanced`, `balanced` | All three must be `true` |
-| `status` | Must be `complete_balanced` |
+```tsv
+reaction_id	reaction_smiles
+EXAMPLE_001	CC(=O)OCC.O>>CC(=O)O.CCO
+```
 
-Put this table alongside the seven Rhea input files, then build the combined library:
+This is a format demonstration, not a KEGG record. Replace it with your own KEGG IDs and reactions obtained under the applicable terms. No balance flags are needed: the script checks structures and element/charge conservation and stops on invalid rows.
+
+With the seven Rhea input files above in `/path/to/raw`, run:
 
 ```bash
 python scripts/build_database.py --database rhea-kegg \
-  --input-dir /path/to/raw --output-dir data/rhea-kegg
+  --input-dir /path/to/raw --kegg-file /path/to/kegg_reactions.tsv \
+  --output-dir data/rhea-kegg
 ```
 
-This command reads the table you provide locally; downloading and preparing the KEGG table is a separate step. Once the build finishes, use `--data-dir data/rhea-kegg` to run completion with the combined library.
+Then use `--data-dir data/rhea-kegg` for reaction completion. The build records your input file's checksum; optionally add `--kegg-release YYYY-MM-DD` to record its source date.
 
 ## Repository structure
 

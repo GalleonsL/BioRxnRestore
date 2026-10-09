@@ -232,7 +232,7 @@ def build_kegg_reactions(snapshot: str | Path, *, expected_sha256: str, source_r
     observed_sha256 = sha256_file(source)
     if observed_sha256 != expected_sha256:
         raise TableSchemaError(f'KEGG snapshot SHA-256 mismatch: expected {expected_sha256}, observed {observed_sha256}')
-    required = {'reaction_id', 'equation', 'reaction_smiles', 'element_balanced', 'charge_balanced', 'balanced', 'status'}
+    required = {'reaction_id', 'reaction_smiles'}
     records: list[KeggReactionRecord] = []
     stats: Counter = Counter()
     seen: set[str] = set()
@@ -247,9 +247,8 @@ def build_kegg_reactions(snapshot: str | Path, *, expected_sha256: str, source_r
             if reaction_id in seen:
                 raise TableSchemaError(f'{source}:{line_number} contains duplicate KEGG ID {reaction_id}')
             seen.add(reaction_id)
-            flags = (row['element_balanced'].lower(), row['charge_balanced'].lower(), row['balanced'].lower())
-            if flags != ('true', 'true', 'true') or row['status'] != 'complete_balanced':
-                raise TableSchemaError(f'{source}:{line_number} contains a non-strict-balanced row: {reaction_id}')
+            if not row['reaction_smiles'] or not row['reaction_smiles'].strip():
+                raise TableSchemaError(f'{source}:{line_number} has no reaction SMILES: {reaction_id}')
             if '*' in row['reaction_smiles']:
                 raise TableSchemaError(f'{source}:{line_number} contains a wildcard reaction: {reaction_id}')
             try:
@@ -264,7 +263,7 @@ def build_kegg_reactions(snapshot: str | Path, *, expected_sha256: str, source_r
                 oriented = reaction if direction == 'LR' else Reaction(reaction.products, reaction.reactants)
                 raw_left, raw_right = row['reaction_smiles'].split('>>')
                 oriented_raw = row['reaction_smiles'] if direction == 'LR' else f'{raw_right}>>{raw_left}'
-                records.append(KeggReactionRecord(schema_version=2, source_database='kegg', source_release=source_release, source_master_id=reaction_id, source_reaction_id=f'{reaction_id}:{direction}' if direction_policy == 'both' else reaction_id, direction=direction, ec_numbers='', equation=row['equation'], reaction_smiles=oriented_raw, standardized_reaction_smiles=oriented.to_smiles(), reaction_key=oriented.key, is_balanced=True))
+                records.append(KeggReactionRecord(schema_version=2, source_database='kegg', source_release=source_release, source_master_id=reaction_id, source_reaction_id=f'{reaction_id}:{direction}' if direction_policy == 'both' else reaction_id, direction=direction, ec_numbers='', equation=row.get('equation') or '', reaction_smiles=oriented_raw, standardized_reaction_smiles=oriented.to_smiles(), reaction_key=oriented.key, is_balanced=True))
                 stats['recorded_direction_rows' if direction == 'LR' else 'reverse_direction_rows'] += 1
                 stats['output_rows'] += 1
     return (records, stats)

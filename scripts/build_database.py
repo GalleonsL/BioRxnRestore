@@ -44,21 +44,37 @@ def audit(out, stage, rows):
             f.write(json.dumps(dict(stage=stage, record=row))+'\n')
 
 
-def prepare_sources(raw, out, settings, database='rhea'):
-    if out.exists():
-        raise FileExistsError(f'Use a new output directory: {out}')
+def source_inputs(raw, settings, database='rhea', kegg_file=None):
     paths = {}
+    inputs = []
     for item in settings['inputs']:
         if item['role'] == 'kegg' and database == 'rhea':
             continue
-        path = raw/item['file']
-        if not path.is_file() or e.sha256_file(path) != item['sha256']:
-            raise ValueError(f'Missing or mismatched source snapshot: {path}')
+        path = (kegg_file if kegg_file is not None else raw/'kegg_reactions.tsv') if item['role'] == 'kegg' else raw/item['file']
+        if not path.is_file():
+            raise ValueError(f'Missing source file: {path}')
+        digest = e.sha256_file(path)
+        if item['role'] != 'kegg' and digest != item['sha256']:
+            raise ValueError(f'Mismatched source snapshot: {path}')
         paths[item['role']] = path
+        inputs.append(dict(item, file=path.name, sha256=digest))
+    return paths, inputs
+
+
+def prepare_sources(raw, out, settings, database='rhea', kegg_file=None, kegg_release='user-supplied'):
+    if out.exists():
+        raise FileExistsError(f'Use a new output directory: {out}')
+    paths, inputs = source_inputs(raw, settings, database, kegg_file)
+    # Validate the user table before creating any build output.
+    if database == 'rhea-kegg':
+        kegg, kegg_stats = p.build_kegg_reactions(paths['kegg'],
+            expected_sha256=e.sha256_file(paths['kegg']), source_release=kegg_release,
+            direction_policy='recorded_only')
     out.mkdir(parents=True)
     report = dict(status='preparing_sources', input_sha256={str(path):e.sha256_file(path) for path in paths.values()},
                   settings_sha256=e.sha256_file(DATA/'sources.json'),
-                  databases=['rhea'] if database == 'rhea' else ['rhea', 'kegg'], stages={})
+                  databases=['rhea'] if database == 'rhea' else ['rhea', 'kegg'],
+                  inputs=inputs, kegg_release=kegg_release if database == 'rhea-kegg' else None, stages={})
     write(out/'build_report.json', report)
     rhea, stats = p.build_rhea_reactions(p.RheaInputPaths(
         paths['rhea_smiles'],paths['rhea_directions'],paths['rhea_metadata'],paths['rhea_ec']),settings['rhea_release'])
@@ -75,9 +91,7 @@ def prepare_sources(raw, out, settings, database='rhea'):
             form = forms.resolve(row.smiles)
             mapped_aux.append(replace(row,smiles=form.prepared_smiles,smiles_source=row.smiles_source+';'+form.status))
         p.write_auxiliary_species(out/'kegg_auxiliary.tsv',mapped_aux)
-        kegg,stats = p.build_kegg_reactions(paths['kegg'],expected_sha256=e.sha256_file(paths['kegg']),
-            source_release=settings['kegg_release'],direction_policy='recorded_only')
-        report['stages']['kegg_snapshot'] = dict(stats)
+        report['stages']['kegg_snapshot'] = dict(kegg_stats)
         kegg,molecules,reactions,stats = p.prepare_kegg_chemical_forms(kegg,forms,direction_policy='both')
         audit(out,'kegg_molecular_forms',molecules)
         audit(out,'kegg_reference_forms',reactions)
@@ -272,7 +286,7 @@ def build_library(out, settings, cache=None):
         manifest['files'].append(dict(role='lookup_kegg',file='kegg_reactions.tsv'))
     for item in manifest['files']:item['sha256']=e.sha256_file(out/item['file'])
     manifest['databases']=databases
-    manifest['inputs']=[a for a in settings['inputs'] if a['role']!='kegg' or 'kegg' in databases]
+    manifest['inputs']=report.get('inputs', [a for a in settings['inputs'] if a['role']!='kegg' or 'kegg' in databases])
     manifest['library']='-'.join(databases)+'-local'
     manifest.pop('license', None)
     manifest.pop('counts', None)
@@ -280,7 +294,7 @@ def build_library(out, settings, cache=None):
         source_input_sha256=report['input_sha256'],settings_sha256=report['settings_sha256'],
         mapper='live' if cache is None else 'saved_mapping_cache',paper_byte_identity=False)
     if 'kegg' in databases:
-        manifest['build']['kegg_release']=settings['kegg_release']
+        manifest['build']['kegg_release']=report.get('kegg_release', settings['kegg_release'])
     report.update(status='complete',evidence_rows=len(evidence),parents=len(parents),template_statuses=dict(counts),
         runtime_files={a['file']:a['sha256'] for a in manifest['files']},
         limitation='Fresh MCS timeouts/mapping outcomes can vary; a completed build is not proof of identity with the paper library.')
@@ -290,21 +304,26 @@ def build_library(out, settings, cache=None):
 
 
 def main():
-    parser=argparse.ArgumentParser(description='Prepare the fixed BioRxnRestore source snapshots and runtime library.')
+    parser=argparse.ArgumentParser(description='Build a Rhea library, optionally adding a user-supplied KEGG reaction table.')
     parser.add_argument('--input-dir',type=Path,help='Folder containing the selected source files listed in data/sources.json')
     parser.add_argument('--database',choices=['rhea','rhea-kegg'],
-        help='Default: rhea; rhea-kegg also requires the locally supplied KEGG snapshot')
+        help='Default: rhea; rhea-kegg also requires a local two-column KEGG TSV')
+    parser.add_argument('--kegg-file', type=Path, help='KEGG TSV with reaction_id and reaction_smiles (default: INPUT_DIR/kegg_reactions.tsv)')
+    parser.add_argument('--kegg-release', default='user-supplied', help='Optional source version or download date for provenance')
     parser.add_argument('--output-dir',required=True,type=Path,help='New output directory; never overwrite a previous library')
     parser.add_argument('--stage',choices=['all','sources','library'],default='all',help='Default: run both source cleaning and library construction')
     parser.add_argument('--mapping-cache',type=Path,help='Optional exhaustive mappings.json from an audited prior build')
     args=parser.parse_args();settings=read(DATA/'sources.json');out=args.output_dir.resolve()
     if args.stage!='library' and args.input_dir is None:parser.error('--input-dir is required for sources/all')
+    if (args.kegg_file is not None or args.kegg_release != 'user-supplied') and (args.database != 'rhea-kegg' or args.stage == 'library'):
+        parser.error('--kegg-file/--kegg-release require --database rhea-kegg and stage sources/all')
     try:
         if args.stage=='library' and args.database is not None:
             expected=['rhea'] if args.database=='rhea' else ['rhea','kegg']
             if read(out/'build_report.json').get('databases',['rhea','kegg'])!=expected:
                 raise ValueError('--database differs from the completed sources stage')
-        if args.stage!='library':prepare_sources(args.input_dir.resolve(),out,settings,args.database or 'rhea')
+        if args.stage!='library':prepare_sources(args.input_dir.resolve(),out,settings,args.database or 'rhea',
+            args.kegg_file.resolve() if args.kegg_file is not None else None, args.kegg_release)
         if args.stage!='sources':build_library(out,settings,args.mapping_cache)
         return 0
     except Exception as error:
