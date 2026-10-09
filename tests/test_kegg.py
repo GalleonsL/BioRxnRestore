@@ -10,7 +10,7 @@ sys.path[:0] = [str(ROOT), str(ROOT / 'scripts')]
 from biorxnrestore import preprocessing as p
 import build_database as build
 
-FULL = 'CC(=O)OCC.O>>CC(=O)O.CCO'
+FULL = 'O=C(O)[C@@H](O)CC(=O)O>>O=C(O)/C=C/C(=O)O.O'
 
 
 class KeggTests(unittest.TestCase):
@@ -32,8 +32,12 @@ class KeggTests(unittest.TestCase):
         self.assertEqual(stats['input_rows'], 1)
         self.assertEqual(records[0].source_release, 'custom-date')
         self.assertEqual(records[0].equation, '')
+        self.assertEqual(records[0].source_master_id, 'R01082')
+        left, right = records[0].reaction_smiles.split('>>')
+        self.assertEqual(p.Chem.FindMolChiralCenters(p.Chem.MolFromSmiles(left))[0][1], 'S')
+        self.assertIn(p.Chem.BondStereo.STEREOE, [b.GetStereo() for b in p.Chem.MolFromSmiles(right).GetBonds()])
         self.assertEqual(records[0].reaction_smiles, FULL)
-        self.assertEqual(records[1].reaction_smiles, 'CC(=O)O.CCO>>CC(=O)OCC.O')
+        self.assertEqual(records[1].reaction_smiles, 'O=C(O)/C=C/C(=O)O.O>>O=C(O)[C@@H](O)CC(=O)O')
 
     def test_reject_invalid_chemistry_and_schema(self):
         cases = [('', FULL), ('X', ''), ('X', 'bad'), ('X', '*C>>*C'),

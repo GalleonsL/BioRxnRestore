@@ -74,10 +74,10 @@ Provide a tab-separated file with two columns: `reaction_id` (the KEGG reaction 
 
 ```tsv
 reaction_id	reaction_smiles
-EXAMPLE_001	CC(=O)OCC.O>>CC(=O)O.CCO
+R01082	O=C(O)[C@@H](O)CC(=O)O>>O=C(O)/C=C/C(=O)O.O
 ```
 
-This is a format demonstration, not a KEGG record. Replace it with your own KEGG IDs and reactions obtained under the applicable terms. No balance flags are needed: the script checks structures and element/charge conservation and stops on invalid rows.
+This example represents [KEGG R01082](https://www.kegg.jp/entry/R01082): (S)-malate → fumarate + water, written here using neutral acid forms. Provide additional KEGG reactions obtained under the applicable terms. No balance flags are needed: the script checks structures and element/charge conservation and stops on invalid rows.
 
 With the seven Rhea input files above in `/path/to/raw`, run:
 
